@@ -1,11 +1,14 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+
+import bas.util.HexaBytes;
 
 abstract class Instruct{
 	byte type;
@@ -39,23 +42,26 @@ public class Encode {
 		ArrayList<Instruct> instructions = new ArrayList<>();
 		ArrayList<Byte> bytes = new ArrayList<>();
 		
-		
-		
 		try(BufferedReader in = new BufferedReader(new FileReader(s.nextLine()))) {
 			String str = in.readLine();
 			String[] tokens = str.split("=");
 			
-			opLength = Integer.parseInt(tokens[1]); //this might actually not be the end of the instructions if the file is changed!
+			opLength = Integer.parseInt(tokens[1]); 
+			//this might actually not be the end of the instructions if the file is changed!
+			//so we temporarily add 4 0 bytes and add the real values later
+			bytes.add((byte) 0);
+			bytes.add((byte) 0);
+			bytes.add((byte) 0);
+			bytes.add((byte) 0);
+			
+			//set the pos (check!)
+			int pos = 4;
 			
 		    while ((str = in.readLine()) != null) {
 				switch(mode) {
 				case 1:
 					tokens = str.split(",");
-					
-					if (Integer.parseInt(tokens[0]) == opLength) {
-						mode++;
-					}
-					
+							
 					byte opcode;
 					
 					try {
@@ -67,9 +73,9 @@ public class Encode {
 						} else if (instruction.equals("callSys")) {
 							opcode = 3;
 						} else if (instruction.equals("return")) {
-							opcode = 3;
-						} else if (instruction.equals("ret1")) {
 							opcode = 4;
+						} else if (instruction.equals("ret1")) {
+							opcode = 5;
 						} else if (instruction.equals("jump")) {
 							opcode = 6;
 						} else if (instruction.equals("jumpIfZero")) {
@@ -106,7 +112,7 @@ public class Encode {
 							opcode = 22;
 						}else if (instruction.equals("unknown23")) {
 							opcode = 23;
-						}else if (instruction.equals("unkown24")) {
+						}else if (instruction.equals("unknown24")) {
 							opcode = 24;
 						}else if (instruction.equals("neg")) {
 							opcode = 25;
@@ -114,7 +120,7 @@ public class Encode {
 							opcode = 26;
 						}else if (instruction.equals("subtract")) {
 							opcode = 27;
-						}else if (instruction.equals("multipy")) {
+						}else if (instruction.equals("multiply")) {
 							opcode = 28;
 						}else if (instruction.equals("div")) {
 							opcode = 29;
@@ -136,53 +142,116 @@ public class Encode {
 							opcode = 37;
 						}else if (instruction.equals("lt")) {
 							opcode = 38;
-						}else if (instruction.equals("lte")) {
+						}else if (instruction.equals("gte")) {
 							opcode = 39;
 						}else {
 							opcode = 0;
-							System.out.println("Warning: unkown opcode!");
+							System.out.println("Warning: unkown opcode! " + instruction);
 						}
 						
-						Instruct instruct = new Opcode(opcode);
-						
+						bytes.add((byte) opcode);
+						pos++;
+										
 						switch(opcode) {
 						case 1:
-							instruct.num2 = Integer.parseInt(tokens[3]);
+							pos++;
+							pos++;
+							bytes.add((byte) Integer.parseInt(tokens[2]));
+							bytes.add((byte) Integer.parseInt(tokens[3]));
+							break;
+						case 12:
+						case 16:
+						case 18:
+						case 22:
+						case 24:
+							//parse a byte
+							pos++;
+							bytes.add((byte) Integer.parseInt(tokens[2]));
+							break;
 						case 2:
-						case 3:
 						case 6:
 						case 7:
 						case 10:
+							//parse an int
+							pos+=4;
+							byte[] tempBytes = HexaBytes.unsIntToBytes( Integer.parseInt(tokens[2]) );
+							
+							for(int i = 3; i >= 0; i--) {
+								bytes.add(tempBytes[i]);
+							}
+							
+							break;
+							
+						case 3:
 						case 11:
-						case 12:
 						case 15:
-						case 16:
 						case 17:
 						case 21:
-						case 22:
 						case 23:
-						case 24:
-							instruct.num1 = Integer.parseInt(tokens[2]);
+						//parse a short
+							pos+=2;
+							byte[] tempBytes2 = HexaBytes.unsShortToBytes((short) Integer.parseInt(tokens[2]) );
+						
+							bytes.add(tempBytes2[1]);
+							bytes.add(tempBytes2[0]);
+							
 							break;
 						case 14:
-							instruct.str = tokens[2];
+							//parse a string
+							try {
+								byte[] tempBytes3 = tokens[2].getBytes();
+							
+								byte len = (byte) (tempBytes3.length + 1);
+								pos++;
+								bytes.add(len);
+							
+								for (byte b : tempBytes3) {
+									pos++;
+									bytes.add(b);
+								}
+							} catch (ArrayIndexOutOfBoundsException e) {
+								pos++;
+								bytes.add((byte) 1);
+							}
+							
+							pos++;
+							bytes.add((byte) 0);
+							
 							break;
 						case 13:
-							//writing float not yet supported;
-							instruct.floatbytes = new byte[]{0, 0, 0, 0};
-						}
+							//parse a float; still to do
+							pos+=4;
 						
-						instructions.add(instruct);
-						
+							for(int i = 3; i >= 0; i--) {
+								bytes.add((byte) 0);
+							}
+						}						
 								
 					} catch(ArrayIndexOutOfBoundsException e) {
 						//end of instructs reached
-						opLength = Integer.parseInt(tokens[0]);
+						opLength = pos;
+						byte[] tempBytes = HexaBytes.unsIntToBytes(opLength);
+						
+						for(int i = 0; i < 4; i++) {
+							bytes.set(i, tempBytes[3 - i]);
+						}
 						mode++;
 					}
 					
 					break;
 				}
+		    }
+		    
+		    //convert to bytestream
+		    byte[] bytesToWrite = new byte[bytes.size()];
+		    for (int i=0; i < bytes.size(); i++) {
+		    	bytesToWrite[i] = bytes.get(i);
+		    }
+		    
+		    //write to hcp
+		    try (FileOutputStream fos = new FileOutputStream("D:\\Games\\Favorite\\hcb\\out.hcb")) {
+		    	   fos.write(bytesToWrite);
+		    	   fos.close();
 		    }
 		}
 		catch (IOException e) {
