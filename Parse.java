@@ -16,52 +16,72 @@ public class Parse {
 		File file = new File(s.nextLine());
 		BufferedWriter writer;
 
+		
+		
 		try {
 			byte[] fileContent = Files.readAllBytes(file.toPath());
-			//System.out.println(DatatypeConverter.printHexBinary(new byte[]{-104, 106, 64, 0}));
 
+			//convert bytes to unsigned int
+			int[] unsigned = new int[fileContent.length];
+			
+			for (int i = 0; i < fileContent.length; i++) {
+				unsigned[i] = Byte.toUnsignedInt(fileContent[i]);
+			}
+			
 			int pos = 0;
 
 			try {
 				writer = new BufferedWriter(new FileWriter("D:\\Games\\Favorite\\hcb\\testout.txt"));
 				
-				int oplength = fileContent[pos] +  (fileContent[++pos]<<8) + (fileContent[++pos]<<16) + (fileContent[++pos]<<24) + 256 ;
+				int opLength = unsigned[pos] +  (unsigned[++pos]<<8) + (unsigned[++pos]<<16) + (unsigned[++pos]<<24) ;
 				
 				writer.write("opLength:");
-				writer.write("=" + oplength+ "\n");
+				writer.write("=" + opLength+ "\n");
 					
-				byte switchVal;
+				byte switchVal = 0;
+				byte mode = 1;
 				
 				while (pos < fileContent.length - 5) {
 					
+					if (pos == opLength) {
+						mode++;
+					}
 					
-					if (pos == oplength) {
+					switch(mode) {
+					case 1:
+						writer.write(++pos + ",");
+						switchVal = fileContent[pos];
+						break;
+					case 2:
 						writer.write("startPoint:");
-						writer.write("=" + (fileContent[pos] +  (fileContent[++pos]<<8) + (fileContent[++pos]<<16) + (fileContent[++pos]<<24) ));
+						writer.write("=" + (unsigned[pos] +  (unsigned[++pos]<<8) + (unsigned[++pos]<<16) + (unsigned[++pos]<<24) ));
 						writer.write("\n");
 						
 						writer.write("count1:");
-						writer.write("=" + (fileContent[++pos] +  (fileContent[++pos]<<8)  ));
+						writer.write("=" + (unsigned[++pos] +  (unsigned[++pos]<<8)  ));
 						writer.write("\n");
 						
 						writer.write("count2:");
-						writer.write("=" + (fileContent[++pos] +  (fileContent[++pos]<<8) + 256  ));
+						writer.write("=" + (unsigned[++pos] +  (unsigned[++pos]<<8) ));
 						writer.write("\n");
 						
 						writer.write("resIndex:");
-						writer.write("=" + (fileContent[++pos] +  (fileContent[++pos]<<8)  ) ) ;
+						writer.write("=" + (unsigned[++pos] +  (unsigned[++pos]<<8)  ) ) ;
 						writer.write("\n");
 						
 						switchVal = 14;
-					} else if(pos >= oplength) {
-						
+						mode++;
+						break;
+					case 3:
+						writer.write("unknown vals");
+						writer.write("," + unsigned[++pos]);
+						writer.write("," + unsigned[++pos]);
+						writer.write("/n");
+						mode++;
+					case 4:						
 						writer.write("import:");
-						writer.write("type=:" +fileContent[++pos]+",");
+						writer.write("type=:" +unsigned[++pos]+",");
 						switchVal = 14;
-					}
-					else {
-						writer.write(++pos + ",");
-						switchVal = fileContent[pos];
 					}
 
 					switch(switchVal) {
@@ -70,16 +90,16 @@ public class Parse {
 						break;
 					case 1:
 						writer.write("initStack");
-						writer.write("," + fileContent[++pos]);
-						writer.write("," + fileContent[++pos]);
+						writer.write("," + unsigned[++pos]);
+						writer.write("," + unsigned[++pos]);
 						break;
 					case 2:
 						writer.write("call");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8) + (fileContent[++pos]<<16) + (fileContent[++pos]<<24) ));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8) + (unsigned[++pos]<<16) + (unsigned[++pos]<<24) ));
 						break;
 					case 3:
 						writer.write("callSys");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8) ));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8) ));
 						break;
 					case 4:
 						writer.write("return");
@@ -89,11 +109,11 @@ public class Parse {
 						break;
 					case 6:
 						writer.write("jump");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8) + (fileContent[++pos]<<16) + (fileContent[++pos]<<24) ));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8) + (unsigned[++pos]<<16) + (unsigned[++pos]<<24) ));
 						break;
 					case 7:
 						writer.write("jumpIfZero");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8) + (fileContent[++pos]<<16) + (fileContent[++pos]<<24) ));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8) + (unsigned[++pos]<<16) + (unsigned[++pos]<<24) ));
 						break;
 					case 8:
 						writer.write("push0");
@@ -103,15 +123,15 @@ public class Parse {
 						break;
 					case 10:
 						writer.write("pushInt");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8) + (fileContent[++pos]<<16) + (fileContent[++pos]<<24) ));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8) + (unsigned[++pos]<<16) + (unsigned[++pos]<<24) ));
 						break;
 					case 11:
 						writer.write("pushShort");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8) ));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8) ));
 						break;
 					case 12:
 						writer.write("pushByte");
-						writer.write("," + fileContent[++pos]);
+						writer.write("," + unsigned[++pos]);
 						break;
 					case 13:
 						writer.write("pushFloat");
@@ -121,8 +141,7 @@ public class Parse {
 						break;
 					case 14:
 						writer.write("pushString");
-						//Length is unsigned (the 0xff converts)
-						int len = (fileContent[++pos] & 0xff) - 1;
+						int len = (unsigned[++pos]) - 1;
 						
 						if (len >= 0 ) {
 							byte[] bytes2 = new byte[len];
@@ -138,19 +157,19 @@ public class Parse {
 						break;
 					case 15:
 						writer.write("pushGlobal");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8)));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8)));
 						break;
 					case 16:
 						writer.write("pushStack");
-						writer.write("," + (fileContent[++pos]));
+						writer.write("," + (unsigned[++pos]));
 						break;
 					case 17:
 						writer.write("unknown17");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8) ));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8) ));
 						break;
 					case 18:
 						writer.write("unknown18");
-						writer.write("," + (fileContent[++pos] ));
+						writer.write("," + (unsigned[++pos] ));
 						break;
 					case 19:
 						writer.write("pushTop");
@@ -160,19 +179,19 @@ public class Parse {
 						break;
 					case 21:
 						writer.write("popGlobal");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8) ));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8) ));
 						break;
 					case 22:
 						writer.write("copyStack");
-						writer.write("," + (fileContent[++pos] ));
+						writer.write("," + (unsigned[++pos] ));
 						break;
 					case 23:
 						writer.write("unknown23");
-						writer.write("," + (fileContent[++pos] +  (fileContent[++pos]<<8)));
+						writer.write("," + (unsigned[++pos] +  (unsigned[++pos]<<8)));
 						break;
 					case 24:
 						writer.write("unknown24");
-						writer.write("," + (fileContent[++pos] ));
+						writer.write("," + (unsigned[++pos] ));
 						break;
 					case 25:
 						writer.write("neg");
@@ -220,10 +239,8 @@ public class Parse {
 						writer.write("gte");
 						break;
 					}
-					
-					
-						
-					writer.write("\t\n");
+				
+					writer.write("\n");
 				}
 				writer.close();
 			} catch (IOException e1) {
