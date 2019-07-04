@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.util.Scanner;
 	
-public class Parse {
+public class Decode {
 	public static void main(String[] args) {
 		
 		Scanner s = new Scanner(System.in);
