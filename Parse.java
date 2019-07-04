@@ -41,7 +41,7 @@ public class Parse {
 				byte switchVal = 0;
 				byte mode = 1;
 				
-				while (pos < fileContent.length - 5) {
+				while (pos < fileContent.length - 3) {
 					
 					if (pos == opLength) {
 						mode++;
@@ -73,8 +73,8 @@ public class Parse {
 						mode++;
 						break;
 					case 3:
-						writer.write("unknown vals");
-						writer.write("," + unsigned[++pos]);
+						writer.write("unknown vals=:");
+						writer.write(unsigned[++pos]);
 						writer.write("," + unsigned[++pos]);
 						writer.write("/n");
 						mode++;
