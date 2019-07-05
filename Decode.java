@@ -73,14 +73,14 @@ public class Decode {
 						mode++;
 						break;
 					case 3:
-						writer.write("unknown vals=:");
-						writer.write(unsigned[++pos]);
-						writer.write("," + unsigned[++pos]);
-						writer.write("/n");
+						writer.write("import count=:");
+						writer.write("" + unsigned[++pos]);
+						writer.write(":" + unsigned[++pos]);
+						writer.write("\n");
 						mode++;
 					case 4:						
 						writer.write("import:");
-						writer.write("type=:" +unsigned[++pos]+",");
+						writer.write("type=:," +unsigned[++pos]+",");
 						switchVal = 14;
 					}
 
