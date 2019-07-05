@@ -37,7 +37,6 @@ public class Encode {
 		BufferedWriter writer;
 		
 		int opLength;
-		int mode = 1;
 		
 		ArrayList<Instruct> instructions = new ArrayList<>();
 		ArrayList<Byte> bytes = new ArrayList<>();
@@ -57,9 +56,7 @@ public class Encode {
 			//set the pos (check!)
 			int pos = 4;
 			
-		    while ((str = in.readLine()) != null) {
-				switch(mode) {
-				case 1:
+		    loop : while ((str = in.readLine()) != null) {
 					tokens = str.split(",");
 							
 					byte opcode;
@@ -235,13 +232,79 @@ public class Encode {
 						for(int i = 0; i < 4; i++) {
 							bytes.set(i, tempBytes[3 - i]);
 						}
-						mode++;
+						
+						break loop;
 					}
-					
-					break;
-				}
 		    }
-		    
+			
+			//parse entry point
+			str = in.readLine();
+			tokens = str.split("=");
+			pos+=4;
+			byte[] tempBytes = HexaBytes.unsIntToBytes( Integer.parseInt(tokens[1]) );
+			
+			for(int i = 3; i >= 0; i--) {
+				bytes.add(tempBytes[i]);
+			}
+			
+			//parse counts and res index
+			for (int i = 0; i<3; i++) {
+				str = in.readLine();
+				tokens = str.split("=");
+				pos+=2;
+				byte[] tempBytes2 = HexaBytes.unsShortToBytes((short) Integer.parseInt(tokens[1]) );
+				bytes.add(tempBytes2[1]);
+				bytes.add(tempBytes2[0]);
+			}
+			
+			//parse title string
+			str = in.readLine();
+			tokens = str.split(",");
+			
+			byte[] tempBytes3 = tokens[1].getBytes();
+			
+			byte len = (byte) (tempBytes3.length + 1);
+			pos++;
+			bytes.add(len);
+		
+			for (byte b : tempBytes3) {
+				pos++;
+				bytes.add(b);
+			}
+			
+			pos++;
+			bytes.add((byte) 0);
+			
+			//parse import count
+			pos+=2;
+			str = in.readLine();
+			for (int i = 1; i<3; i++) {
+				tokens = str.split(":");
+				bytes.add((byte) Integer.parseInt(tokens[i]));
+			}
+			
+			//parse imports
+			while ((str = in.readLine()) != null) {
+				tokens = str.split(",");
+				pos++;
+				bytes.add((byte) Integer.parseInt(tokens[1]));
+				
+				tempBytes3 = tokens[3].getBytes();
+				
+				len = (byte) (tempBytes3.length + 1);
+				pos++;
+				bytes.add(len);
+			
+				for (byte b : tempBytes3) {
+					pos++;
+					bytes.add(b);
+				}
+				
+				pos++;
+				bytes.add((byte) 0);
+				
+			}
+			
 		    //convert to bytestream
 		    byte[] bytesToWrite = new byte[bytes.size()];
 		    for (int i=0; i < bytes.size(); i++) {
@@ -249,7 +312,7 @@ public class Encode {
 		    }
 		    
 		    //write to hcp
-		    try (FileOutputStream fos = new FileOutputStream("D:\\Games\\Favorite\\hcb\\out.hcb")) {
+		    try (FileOutputStream fos = new FileOutputStream("D:\\Games\\Favorite\\‚¢‚ë‚Æ‚è‚Ç‚è‚ÌƒZƒJƒC\\World.hcb")) {
 		    	   fos.write(bytesToWrite);
 		    	   fos.close();
 		    }

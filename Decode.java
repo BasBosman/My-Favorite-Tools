@@ -13,6 +13,7 @@ public class Decode {
 		Scanner s = new Scanner(System.in);
 		System.out.println("Please give file name you want to parse:");
 		//ie. D:\Games\Favorite\hcb\World.hcb
+		//or D:\\Games\\Favorite\\Ç¢ÇÎÇ∆ÇËÇ«ÇËÇÃÉZÉJÉC\\World.hcb
 		File file = new File(s.nextLine());
 		BufferedWriter writer;
 
@@ -73,14 +74,14 @@ public class Decode {
 						mode++;
 						break;
 					case 3:
-						writer.write("unknown vals=:");
-						writer.write(unsigned[++pos]);
-						writer.write("," + unsigned[++pos]);
-						writer.write("/n");
+						writer.write("import count=:");
+						writer.write("" + unsigned[++pos]);
+						writer.write(":" + unsigned[++pos]);
+						writer.write("\n");
 						mode++;
 					case 4:						
 						writer.write("import:");
-						writer.write("type=:" +unsigned[++pos]+",");
+						writer.write("type=:," +unsigned[++pos]+",");
 						switchVal = 14;
 					}
 
