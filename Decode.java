@@ -12,7 +12,6 @@ public class Decode {
 		
 		Scanner s = new Scanner(System.in);
 		System.out.println("Please give file name you want to parse:");
-		//ie. D:\Games\Favorite\hcb\World.hcb
 		File file = new File(s.nextLine());
 		BufferedWriter writer;
 

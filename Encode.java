@@ -312,7 +312,7 @@ public class Encode {
 		    }
 		    
 		    //write to hcp
-		    try (FileOutputStream fos = new FileOutputStream("D:\\Games\\Favorite\\hcb\\out.hcb")) {
+		    try (FileOutputStream fos = new FileOutputStream("D:\\Games\\Favorite\\Ç¢ÇÎÇ∆ÇËÇ«ÇËÇÃÉZÉJÉC\\World.hcb")) {
 		    	   fos.write(bytesToWrite);
 		    	   fos.close();
 		    }
