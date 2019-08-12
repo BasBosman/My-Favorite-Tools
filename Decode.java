@@ -16,7 +16,7 @@ public class Decode {
 		File file = new File(s.nextLine());
 		BufferedWriter writer;
 
-		
+		s.close();
 		
 		try {
 			byte[] fileContent = Files.readAllBytes(file.toPath());
