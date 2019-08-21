@@ -14,7 +14,7 @@ public class Decode {
 		System.out.println("Please give file name you want to parse:");
 		//ie. D:\Games\Favorite\hcb\World.hcb
 		//or D:\\Games\\Favorite\\いろとりどりのセカイ\\World.hcb
-		File file = new File(s.nextLine());
+		File file = new File("D:\\Games\\Favorite\\いろとりどりのセカイ\\World.hcb");
 		BufferedWriter writer;
 
 		
