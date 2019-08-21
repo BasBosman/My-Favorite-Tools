@@ -10,7 +10,10 @@ import java.util.Scanner;
 public class Decode {
 	public static void main(String[] args) {
 		
-		File file = new File("C:\\Program Files\\FAVORITE\\‚¢‚ë‚Æ‚è‚Ç‚è‚ÌƒqƒJƒŠ\\Hikari.hcb");
+		Scanner s = new Scanner(System.in);
+		System.out.println("Please give file name you want to parse:");
+		File file = new File(s.nextLine());
+
 		BufferedWriter writer;
 		
 		try {
