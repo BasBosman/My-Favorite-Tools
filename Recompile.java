@@ -125,7 +125,8 @@ public class Recompile {
 							case "pushString":
 								// get string length
 								try {
-									pos += 2 + 1 * tokens[2].length();
+									byte[] b1 = tokens[2].getBytes();
+									pos += b1.length + 3;
 								} catch (ArrayIndexOutOfBoundsException e) {
 									pos += 2;
 								}
