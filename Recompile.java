@@ -30,7 +30,7 @@ public class Recompile {
 		int pos = 4;
 		
 		//get a list of all files in a folder
-		String path = "D:\\tools\\myfavtools\\out\\";
+		String path = "D:\\Games\\Favorite\\hcb\\out\\";
 		try (Stream<Path> walk = Files.walk(Paths.get(path))) {
 
 			List<String> result = walk.filter(Files::isRegularFile)
@@ -72,9 +72,40 @@ public class Recompile {
 							newAdres.add(pos);
 
 							tokens[0] = "" + pos;
-							opCodes.add(String.join(",", tokens));
+							
 							
 							switch (tokens[1]) {
+							
+							//Recompile compiled functions
+							case "speakLine":
+								
+								//check if there is a voiceline
+								if (!tokens[4].equals("0")) {
+									//does not seem to work so far
+								}
+								//check if theres a speaker
+								if (!tokens[3].equals("0")) {
+									opCodes.add(pos + ",call," + tokens[3]);
+									pos += 5;
+								}
+								
+								//parse the string
+								opCodes.add(pos + ",pushString," + tokens[2]);
+								byte[] b2 = tokens[2].getBytes();
+								pos += b2.length + 3;
+								
+								//add 3x push0
+								opCodes.add(pos + ",push0");
+								pos += 1;
+								opCodes.add(pos + ",push0");
+								pos += 1;
+								opCodes.add(pos + ",push0");
+								pos += 1;
+								
+								break;
+								
+
+							//Recalc the new address for basic functions
 							case "null":
 							case "return":
 							case "ret1":
@@ -97,6 +128,7 @@ public class Recompile {
 							case "lte":
 							case "lt":
 							case "gte":
+								opCodes.add(String.join(",", tokens));
 								pos += 1;
 								break;
 							case "pushByte":
@@ -104,6 +136,7 @@ public class Recompile {
 							case "unknown18":
 							case "copyStack":
 							case "unknown24":
+								opCodes.add(String.join(",", tokens));
 								pos += 2;
 								break;
 							case "initStack":
@@ -113,6 +146,7 @@ public class Recompile {
 							case "unknown17":
 							case "popGlobal":
 							case "unknown23":
+								opCodes.add(String.join(",", tokens));
 								pos += 3;
 								break;
 							case "call":
@@ -120,15 +154,17 @@ public class Recompile {
 							case "jumpIfZero":
 							case "pushInt":
 							case "pushFloat":
+								opCodes.add(String.join(",", tokens));
 								pos += 5;
 								break;
 							case "pushString":
-								// get string length
+								//get string length
+								opCodes.add(String.join(",", tokens));
 								try {
 									byte[] b1 = tokens[2].getBytes();
 									pos += b1.length + 3;
 								} catch (ArrayIndexOutOfBoundsException e) {
-									pos += 2;
+									pos += 3;
 								}
 								
 								break;
@@ -137,6 +173,8 @@ public class Recompile {
 							}
 
 						} catch (NumberFormatException e) {
+							opCodes.add("" + pos + ",");
+							opCodes.add(str);
 							while ((str = in.readLine()) != null) {
 								opCodes.add(str);
 							}
@@ -144,7 +182,9 @@ public class Recompile {
 						}
 					}
 
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("D:\\tools\\myfavtools\\test.txt"),"SJIS"));
+				//recalc new address:
+					
+				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("D:\\Games\\Favorite\\hcb\\recompiled.txt"),"SJIS"));
 					
 				for (String s : opCodes) {
 					writer.write(s + "\n");

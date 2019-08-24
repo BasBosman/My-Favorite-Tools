@@ -63,7 +63,7 @@ class NonsenseException extends RuntimeException {
 	//error should be never thrown but can be used to create unreachable catch blocks for testing purposes
 }
 
-public class Decompose {
+public class Decompile {
 	public static void main(String[] args) {
 		BufferedWriter writer;
 		MiscData miscData = new MiscData();
@@ -71,7 +71,7 @@ public class Decompose {
 
 		ArrayList<Byte> bytes = new ArrayList<>();
 
-		File fileDir = new File("D:\\tools\\myfavtools\\out.txt");
+		File fileDir = new File("D:\\Games\\Favorite\\hcb\\decoded.txt");
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileDir), "SJIS"))) {
 
 			String str = in.readLine();
@@ -125,12 +125,10 @@ public class Decompose {
 								newSent.speaker = Integer.parseInt(snippet.strings.get(i-1).split(",")[2]);
 								snippet.strings.remove(i - 1);
 								//check if there is a voiceline
-								if (snippet.strings.get(i-4).split(",")[1].equals("pushInt")
-										&& snippet.strings.get(i-3).split(",")[1].equals("pushByte")
-										&& snippet.strings.get(i-2).split(",")[1].equals("neg")
+								if (snippet.strings.get(i-3).split(",")[1].equals("pushInt")
+										&& snippet.strings.get(i-2).split(",")[1].equals("push0")
 										&& snippet.strings.get(i-1).split(",")[1].equals("push0")) {
-									newSent.voiceLine = Integer.parseInt(snippet.strings.get(i-4).split(",")[2]);
-									snippet.strings.remove(i - 1);
+									newSent.voiceLine = Integer.parseInt(snippet.strings.get(i-3).split(",")[2]);
 									snippet.strings.remove(i - 1);
 									snippet.strings.remove(i - 1);
 									snippet.strings.remove(i - 1);
@@ -173,30 +171,32 @@ public class Decompose {
 			int pos = 1;
 			
 			//for every character get the data
-			for (int i = 0; i < chars.size();) {
-				try {
-					//find the right snippet for the character
-					for (CodeSnippet snippet: codeSnippets) {
-						if (snippet.adress == chars.get(i).adress) {
-							//do something
-							chars.get(i).id = Integer.parseInt(snippet.strings.get(1).split(",")[2]);
-							
-							//delete the snippet
-							i++;
-							codeSnippets.remove(snippet);
-							break;
-						}
-					}
-				} catch (ArrayIndexOutOfBoundsException | NonsenseException e) {
-					//not a valid character, remove from list
-					chars.remove(i);
-				}
-			}
+//			for (int i = 0; i < chars.size();) {
+//				try {
+//					//find the right snippet for the character
+//					for (CodeSnippet snippet: codeSnippets) {
+//						if (snippet.adress == chars.get(i).adress) {
+//							//do something
+//							chars.get(i).id = Integer.parseInt(snippet.strings.get(1).split(",")[2]);
+//							
+//							//delete the snippet
+//							i++;
+//							codeSnippets.remove(snippet);
+//							break;
+//						}
+//					}
+//				} catch (ArrayIndexOutOfBoundsException | NonsenseException e) {
+//					//not a valid character, remove from list
+//					chars.remove(i);
+//				}
+//			}
 			
 			// write every snippet to a file
 			for (CodeSnippet snippet : codeSnippets) {
-						
-				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("D:\\tools\\myfavtools\\out\\" + snippet.adress + ".txt"), "UTF8"));
+				
+				File newFile = new File("D:\\Games\\Favorite\\hcb\\out\\" + snippet.adress + ".txt");
+				
+				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(newFile), "UTF8"));
 				
 				for (String s : snippet.strings) {
 					writer.write(s + "\n");

@@ -41,7 +41,8 @@ public class Encode {
 		ArrayList<Instruct> instructions = new ArrayList<>();
 		ArrayList<Byte> bytes = new ArrayList<>();
 		
-		try(BufferedReader in = new BufferedReader(new FileReader(s.nextLine()))) {
+		//try(BufferedReader in = new BufferedReader(new FileReader(s.nextLine()))) {
+		try(BufferedReader in = new BufferedReader(new FileReader("D:\\Games\\Favorite\\hcb\\recompiled.txt"))) {
 			String str = in.readLine();
 			String[] tokens = str.split("=");
 			
