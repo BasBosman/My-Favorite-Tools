@@ -41,7 +41,8 @@ public class Encode {
 		ArrayList<Instruct> instructions = new ArrayList<>();
 		ArrayList<Byte> bytes = new ArrayList<>();
 		
-		try(BufferedReader in = new BufferedReader(new FileReader("D:\\Games\\Favorite\\hcb\\testout.txt"))) {
+		//try(BufferedReader in = new BufferedReader(new FileReader(s.nextLine()))) {
+		try(BufferedReader in = new BufferedReader(new FileReader("D:\\Games\\Favorite\\hcb\\recompiled.txt"))) {
 			String str = in.readLine();
 			String[] tokens = str.split("=");
 			
@@ -65,23 +66,16 @@ public class Encode {
 						String instruction = tokens[1];
 						if (instruction.equals("initStack")) {
 							opcode = 1;
-						//call is like a method
-						//jumps to target adress and excecutes untill a return
 						} else if (instruction.equals("call")) {
 							opcode = 2;
-						//probably do something in the FVP system
 						} else if (instruction.equals("callSys")) {
 							opcode = 3;
-						//ends a call statement and return
 						} else if (instruction.equals("return")) {
 							opcode = 4;
 						} else if (instruction.equals("ret1")) {
 							opcode = 5;
-						//jump to target adress
 						} else if (instruction.equals("jump")) {
 							opcode = 6;
-						//jump if the last pushed var is zero (push0)
-						//pushInt 0 does not seem to work
 						} else if (instruction.equals("jumpIfZero")) {
 							opcode = 7;
 						} else if (instruction.equals("push0")) {
@@ -136,11 +130,6 @@ public class Encode {
 							opcode = 32;
 						}else if (instruction.equals("or")) {
 							opcode = 33;
-						//check if the last 2 vars pushed are equal
-						//push a 1 in case they are equal
-						//push a 0 in case they are not
-						//push1 is equal to pushInt 1
-						//pushInt1 is equal to puchByte 1
 						}else if (instruction.equals("equal")) {
 							opcode = 34;
 						}else if (instruction.equals("notEqual")) {
@@ -324,7 +313,7 @@ public class Encode {
 		    }
 		    
 		    //write to hcp
-		    try (FileOutputStream fos = new FileOutputStream("D:\\Games\\Favorite\\Ç¢ÇÎÇ∆ÇËÇ«ÇËÇÃÉZÉJÉC\\World.hcb")) {
+		    try (FileOutputStream fos = new FileOutputStream("D:\\Games\\Favorite\\„ÅÑ„Çç„Å®„Çä„Å©„Çä„ÅÆ„Çª„Ç´„Ç§\\World.hcb")) {
 		    	   fos.write(bytesToWrite);
 		    	   fos.close();
 		    }

@@ -12,12 +12,11 @@ public class Decode {
 		
 		Scanner s = new Scanner(System.in);
 		System.out.println("Please give file name you want to parse:");
-		//ie. D:\Games\Favorite\hcb\World.hcb
-		//or D:\\Games\\Favorite\\いろとりどりのセカイ\\World.hcb
-		File file = new File("D:\\Games\\Favorite\\いろとりどりのセカイ\\World.hcb");
-		BufferedWriter writer;
+		//File file = new File(s.nextLine());
 
+		File file = new File("D:\\Games\\Favorite\\縺�繧阪→繧翫←繧翫�ｮ繧ｻ繧ｫ繧､\\world.hcb");
 		
+		BufferedWriter writer;
 		
 		try {
 			byte[] fileContent = Files.readAllBytes(file.toPath());
@@ -32,7 +31,7 @@ public class Decode {
 			int pos = 0;
 
 			try {
-				writer = new BufferedWriter(new FileWriter("D:\\Games\\Favorite\\hcb\\testout.txt"));
+				writer = new BufferedWriter(new FileWriter("D:\\Games\\Favorite\\hcb\\decoded.txt"));
 				
 				int opLength = unsigned[pos] +  (unsigned[++pos]<<8) + (unsigned[++pos]<<16) + (unsigned[++pos]<<24) ;
 				
