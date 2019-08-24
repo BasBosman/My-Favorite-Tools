@@ -142,7 +142,11 @@ public class Decompile {
 							}
 							snippet.strings.add(i, tokens[0] + ",speakLine," + tokens[2] + "," + newSent.speaker + "," + newSent.voiceLine);
 							sentences.add(newSent);
-							snippet.strings.remove(i - 1);
+							if (newSent.speaker == 0) {
+								snippet.strings.remove(i + 1);
+							} else {
+								snippet.strings.remove(i - 1);
+							}
 						}
 					} catch(ArrayIndexOutOfBoundsException e) {
 						//in this case the string is probably empty

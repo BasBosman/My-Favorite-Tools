@@ -19,7 +19,7 @@ public class Recompile {
 	public static void main(String[] args) {
 		Recompile.run();
 	}
-	
+
 	private static synchronized void run() {
 
 		ArrayList<String> opCodes = new ArrayList<>();
@@ -95,7 +95,7 @@ public class Recompile {
 
 								// parse the string
 								opCodes.add(pos + ",pushString," + tokens[2]);
-								byte[] b2 = tokens[2].getBytes();
+								byte[] b2 = tokens[2].getBytes("SJIS");
 								pos += b2.length + 3;
 
 								// add 3x push0
@@ -164,8 +164,9 @@ public class Recompile {
 								// get string length
 								opCodes.add(String.join(",", tokens));
 								try {
-									byte[] b1 = tokens[2].getBytes();
+									byte[] b1 = tokens[2].getBytes("SJIS");;
 									pos += b1.length + 3;
+																	
 								} catch (ArrayIndexOutOfBoundsException e) {
 									pos += 3;
 								}
@@ -185,49 +186,45 @@ public class Recompile {
 						}
 					}
 
-					// recalc new address:
-					loop: for (int i = 1; i < opCodes.size(); i++) {
-						try {
-							String[] tokens = opCodes.get(i).split(",");
-							switch (tokens[1]) {
-							case "call":
-							case "jump":
-							case "jumpIfZero":
-								tokens[2] = "" + newAdres[Integer.parseInt(tokens[2])];
-								opCodes.set(i, String.join(",", tokens));
-								break;
-							}
-
-						} catch (NumberFormatException e) {
-							String[] tokens = opCodes.get(i).split("=");
-							tokens[1] = "" + newAdres[Integer.parseInt(tokens[1])];
-							opCodes.set(i, String.join("=", tokens));
-							break loop;
-						} catch (ArrayIndexOutOfBoundsException e) {
-							i++;
-						}
-					}
-
-				
-					
-					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-							new FileOutputStream("D:\\Games\\Favorite\\hcb\\recompiled.txt"), "SJIS"));
-
-					for (String s : opCodes) {
-						writer.write(s + "\n");
-					}
-					writer.flush();
-					writer.close();
-
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 
+			// recalc new address:
+			loop: for (int i = 1; i < opCodes.size(); i++) {
+				try {
+					String[] tokens = opCodes.get(i).split(",");
+					switch (tokens[1]) {
+					case "call":
+					case "jump":
+					case "jumpIfZero":
+						tokens[2] = "" + newAdres[Integer.parseInt(tokens[2])];
+						opCodes.set(i, String.join(",", tokens));
+						break;
+					}
+
+				} catch (NumberFormatException e) {
+					String[] tokens = opCodes.get(i).split("=");
+					tokens[1] = "" + newAdres[Integer.parseInt(tokens[1])];
+					opCodes.set(i, String.join("=", tokens));
+					break loop;
+				} catch (ArrayIndexOutOfBoundsException e) {
+					i++;
+				}
+			}
+
+			BufferedWriter writer = new BufferedWriter(
+					new OutputStreamWriter(new FileOutputStream("D:\\Games\\Favorite\\hcb\\recompiled.txt"), "SJIS"));
+
+			for (String s : opCodes) {
+				writer.write(s + "\n");
+			}
+			writer.flush();
+			writer.close();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 }
-
