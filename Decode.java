@@ -1,7 +1,9 @@
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
@@ -10,7 +12,7 @@ import java.util.Scanner;
 public class Decode {
 	public static void main(String[] args) {
 		
-		File file = new File("C:\\Program Files\\FAVORITE\\Ç¢ÇÎÇ∆ÇËÇ«ÇËÇÃÉqÉJÉä\\Hikari.hcb");
+		File file = new File("C:\\Program Files\\FAVORITE\\„ÅÑ„Çç„Å®„Çä„Å©„Çä„ÅÆ„Éí„Ç´„É™\\Hikari.hcb");
 		BufferedWriter writer;
 		
 		try {
