@@ -11,10 +11,10 @@ class Global {
 
 class Stack {
 	ArrayList<String> content = new ArrayList<>();
+	int address;
 }
 
 public class Emulate {
-	
 	public static int jump(String index, ArrayList<String> opcodes) {
 		int pos = 0;
 		while (true) {
@@ -48,15 +48,12 @@ public class Emulate {
 		}
 		
 		Global global = new Global();
-		Stack[] stack = new Stack[255];
-		ArrayList<Short> adresStackList = new ArrayList<>();
-		ArrayList<Integer> adresList = new ArrayList<>();
+		ArrayList<Stack> stack = new ArrayList<>();
 		
 		//set start address:
 		int startadres = 177217;
-		
 		int pos = jump(Integer.toString(startadres), opCodes);
-		
+			
 		short currentStack = 0;
 		
 		while (true) {
@@ -69,14 +66,17 @@ public class Emulate {
 			switch(instruction) {
 			case "initStack":
 				//init the stack
-				currentStack = Short.parseShort(tokens[2]);
-				stack[currentStack] = new Stack();
+				stack.add(new Stack());
+				
+				for (int j = 0; j<Integer.parseInt(tokens[2]); j++ ) {
+					stack.get(stack.size()-1).content.add(tokens[3]);
+				}
+				
 				pos++;
 				break;
 			 case"call":
 				//call method at address
-				 adresList.add(0,++pos); //address point to a pos number not an address number
-				 adresStackList.add(0,currentStack);
+				 stack.get(stack.size()-1).address = ++pos; //address point to a pos number not an address number
 				 pos = jump(tokens[2], opCodes);
 				 break;
 			 case"callSys":
@@ -85,10 +85,8 @@ public class Emulate {
 				 break;
 			 case"return":
 				//call return to previous address (use pos in this case)
-				 currentStack = adresStackList.get(0);
-				 adresStackList.remove(0);
-				 pos = adresList.get(0);
-				 adresList.remove(0);
+				 stack.remove(stack.size() - 1);
+				 pos = stack.get(stack.size()-1).address;
 				 break;
 			 case"ret1":
 				//??
@@ -100,7 +98,7 @@ public class Emulate {
 				 break;
 			 case"jumpIfZero":
 				//go to address if last on stack is 0
-				 if (stack[currentStack].content.get(0).equals("0")) {
+				 if (stack.get(stack.size()-1).content.get(0).equals("0")) {
 					 pos = jump(tokens[2], opCodes);
 				 } else {
 					 pos++;
@@ -108,51 +106,51 @@ public class Emulate {
 				 break;
 			 case"push0":
 				//add a 0 (false) to the stack
-				 stack[currentStack].content.add(0,"0");
+				 stack.get(stack.size()-1).content.add(0,"0");
 				 pos++;
 				 break;
 			 case"push1":
 				//add a 1 (true) to the stack
-				 stack[currentStack].content.add(0,"1");
+				 stack.get(stack.size()-1).content.add(0,"1");
 				 pos++;
 				 break;
 			 case"pushInt":
 				//add an int to the stack
-				 stack[currentStack].content.add(0,tokens[2]);
+				 stack.get(stack.size()-1).content.add(0,tokens[2]);
 				 pos++;
 				 break;
 			 case"pushShort":
 				//add a short to the stack
-				 stack[currentStack].content.add(0,tokens[2]);
+				 stack.get(stack.size()-1).content.add(0,tokens[2]);
 				 pos++;
 				 break;
 			 case"pushByte":
 				//add a byte to the stack
-				 stack[currentStack].content.add(0,tokens[2]);
+				 stack.get(stack.size()-1).content.add(0,tokens[2]);
 				 pos++;
 				 break;
 			 case"pushFloat":
 				//add a float to the stack
-				 stack[currentStack].content.add(0,tokens[2]);
+				 stack.get(stack.size()-1).content.add(0,tokens[2]);
 				 pos++;
 				 break;
 			 case"pushString":
 				//add a string to the stack
 				 try {
-					 stack[currentStack].content.add(0,tokens[2]);
+					 stack.get(stack.size()-1).content.add(0,tokens[2]);
 				 } catch(ArrayIndexOutOfBoundsException e) {
-					 stack[currentStack].content.add(0,"");
+					 stack.get(stack.size()-1).content.add(0,"");
 				 }
 				 pos++;
 				 break;
 			 case"pushGlobal":
 				//add a global var to the stack
-				 stack[currentStack].content.add(0,global.vars[Integer.parseInt(tokens[2])]);
+				 stack.get(stack.size()-1).content.add(0,global.vars[Integer.parseInt(tokens[2])]);
 				 pos++;
 				 break;
 			 case"pushStack":
 				//??
-				 stack[currentStack].content.add(0,tokens[2]);
+				 stack.get(stack.size()-1).content.add( stack.get(stack.size()-1).content.get(254 - Integer.parseInt(tokens[2])) );
 				 pos++;
 				 break;
 			 case"unknown17":
@@ -173,12 +171,12 @@ public class Emulate {
 				 break;
 			case"popGlobal":
 				//save a global variable
-				global.vars[Integer.parseInt(tokens[2])] = stack[currentStack].content.get(0);
+				global.vars[Integer.parseInt(tokens[2])] = stack.get(stack.size()-1).content.get(0);
 				pos++;
 				break;
 			case"copyStack":
 				//??
-				stack[currentStack] = stack[Integer.parseInt(tokens[2])];
+				stack.set(stack.size()-1, new Stack());
 				pos++;
 				break;
 			case"unknown23":
@@ -191,41 +189,41 @@ public class Emulate {
 				break;
 			case"neg":
 				//negate
-				if (stack[currentStack].content.get(0).equals("0")) {
-					stack[currentStack].content.add(0,"1");
+				if (stack.get(stack.size()-1).content.get(0).equals("0")) {
+					stack.get(stack.size()-1).content.add(0,"1");
 				} else {
-					stack[currentStack].content.add(0,"0");
+					stack.get(stack.size()-1).content.add(0,"0");
 				}
 				pos++;
 				break;
 			case"add":
 				//add
-				result = Integer.parseInt(stack[currentStack].content.get(0)) + Integer.parseInt(stack[currentStack].content.get(1));
-				stack[currentStack].content.add(0,"" + result);
+				result = Integer.parseInt(stack.get(stack.size()-1).content.get(0)) + Integer.parseInt(stack.get(stack.size()-1).content.get(1));
+				stack.get(stack.size()-1).content.add(0,"" + result);
 				pos++;
 				break;
 			case"subtract":
 				//subtract
-				result = Integer.parseInt(stack[currentStack].content.get(0)) - Integer.parseInt(stack[currentStack].content.get(1));
-				stack[currentStack].content.add(0,"" + result);
+				result = Integer.parseInt(stack.get(stack.size()-1).content.get(0)) - Integer.parseInt(stack.get(stack.size()-1).content.get(1));
+				stack.get(stack.size()-1).content.add(0,"" + result);
 				pos++;
 				break;
 			case"multiply":
 				//multiply
-				result = Integer.parseInt(stack[currentStack].content.get(0)) * Integer.parseInt(stack[currentStack].content.get(1));
-				stack[currentStack].content.add(0,"" + result);
+				result = Integer.parseInt(stack.get(stack.size()-1).content.get(0)) * Integer.parseInt(stack.get(stack.size()-1).content.get(1));
+				stack.get(stack.size()-1).content.add(0,"" + result);
 				pos++;
 				break;
 			case"div":
 				//divide
-				result = Integer.parseInt(stack[currentStack].content.get(0)) / Integer.parseInt(stack[currentStack].content.get(1));
-				stack[currentStack].content.add(0,"" + result);
+				result = Integer.parseInt(stack.get(stack.size()-1).content.get(0)) / Integer.parseInt(stack.get(stack.size()-1).content.get(1));
+				stack.get(stack.size()-1).content.add(0,"" + result);
 				pos++;
 				break;
 			case"mod":
 				//modulus
-				result = Integer.parseInt(stack[currentStack].content.get(0)) % Integer.parseInt(stack[currentStack].content.get(1));
-				stack[currentStack].content.add(0,"" + result);
+				result = Integer.parseInt(stack.get(stack.size()-1).content.get(0)) % Integer.parseInt(stack.get(stack.size()-1).content.get(1));
+				stack.get(stack.size()-1).content.add(0,"" + result);
 				pos++;
 				break;
 			case"bitTest":
@@ -242,55 +240,55 @@ public class Emulate {
 				break;
 			case"equal":
 				//test if equal
-				if (stack[currentStack].content.get(0).equals(stack[currentStack].content.get(1))) {
-					stack[currentStack].content.add(0,"1");
+				if (stack.get(stack.size()-1).content.get(0).equals(stack.get(stack.size()-1).content.get(1))) {
+					stack.get(stack.size()-1).content.add(0,"1");
 				} else {
-					stack[currentStack].content.add(0,"0");
+					stack.get(stack.size()-1).content.add(0,"0");
 				}
 				pos++;
 				break;
 			case"notEqual":
 				//test if not equal
-				if (stack[currentStack].content.get(0).equals(stack[currentStack].content.get(1))) {
-					stack[currentStack].content.add(0,"0");
+				if (stack.get(stack.size()-1).content.get(0).equals(stack.get(stack.size()-1).content.get(1))) {
+					stack.get(stack.size()-1).content.add(0,"0");
 				} else {
-					stack[currentStack].content.add(0,"1");
+					stack.get(stack.size()-1).content.add(0,"1");
 				}
 				pos++;
 				break;
 			case"gt":
 				//test if greater
-				if (Integer.parseInt(stack[currentStack].content.get(0)) > Integer.parseInt(stack[currentStack].content.get(1))) {
-					stack[currentStack].content.add(0,"1");
+				if (Integer.parseInt(stack.get(stack.size()-1).content.get(0)) > Integer.parseInt(stack.get(stack.size()-1).content.get(1))) {
+					stack.get(stack.size()-1).content.add(0,"1");
 				} else {
-					stack[currentStack].content.add(0,"0");
+					stack.get(stack.size()-1).content.add(0,"0");
 				}
 				pos++;
 				break;
 			case"lte":
 				//test if lesser or eq
-				if (Integer.parseInt(stack[currentStack].content.get(0)) <= Integer.parseInt(stack[currentStack].content.get(1))) {
-					stack[currentStack].content.add(0,"1");
+				if (Integer.parseInt(stack.get(stack.size()-1).content.get(0)) <= Integer.parseInt(stack.get(stack.size()-1).content.get(1))) {
+					stack.get(stack.size()-1).content.add(0,"1");
 				} else {
-					stack[currentStack].content.add(0,"0");
+					stack.get(stack.size()-1).content.add(0,"0");
 				}
 				pos++;
 				break;
 			case"lt":
 				//test if lesser
-				if (Integer.parseInt(stack[currentStack].content.get(0)) < Integer.parseInt(stack[currentStack].content.get(1))) {
-					stack[currentStack].content.add(0,"1");
+				if (Integer.parseInt(stack.get(stack.size()-1).content.get(0)) < Integer.parseInt(stack.get(stack.size()-1).content.get(1))) {
+					stack.get(stack.size()-1).content.add(0,"1");
 				} else {
-					stack[currentStack].content.add(0,"0");
+					stack.get(stack.size()-1).content.add(0,"0");
 				}
 				pos++;
 				break;
 			case"gte":
 				//test if greater or equal
-				if (Integer.parseInt(stack[currentStack].content.get(0)) >= Integer.parseInt(stack[currentStack].content.get(1))) {
-					stack[currentStack].content.add(0,"1");
+				if (Integer.parseInt(stack.get(stack.size()-1).content.get(0)) >= Integer.parseInt(stack.get(stack.size()-1).content.get(1))) {
+					stack.get(stack.size()-1).content.add(0,"1");
 				} else {
-					stack[currentStack].content.add(0,"0");
+					stack.get(stack.size()-1).content.add(0,"0");
 				}
 				pos++;
 				break;
