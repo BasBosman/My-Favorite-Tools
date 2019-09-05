@@ -1,7 +1,9 @@
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
@@ -10,12 +12,11 @@ import java.util.Scanner;
 public class Decode {
 	public static void main(String[] args) {
 		
+		File file = new File("C:\\Program Files\\FAVORITE\\いろとりどりのヒカリ\\Hikari.hcb");
 		Scanner s = new Scanner(System.in);
 		System.out.println("Please give file name you want to parse:");
 		//File file = new File(s.nextLine());
 
-		File file = new File("D:\\Games\\Favorite\\いろとりどりのセカイ\\world.hcb");
-		
 		BufferedWriter writer;
 		
 		try {

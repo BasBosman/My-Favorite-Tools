@@ -164,8 +164,10 @@ public class Recompile {
 								// get string length
 								opCodes.add(String.join(",", tokens));
 								try {
+
 									byte[] b1 = tokens[2].getBytes();
 									pos += b1.length + 3;
+
 								} catch (ArrayIndexOutOfBoundsException e) {
 									pos += 3;
 								}
