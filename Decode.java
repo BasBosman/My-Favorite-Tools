@@ -13,6 +13,10 @@ public class Decode {
 	public static void main(String[] args) {
 		
 		File file = new File("C:\\Program Files\\FAVORITE\\いろとりどりのヒカリ\\Hikari.hcb");
+		Scanner s = new Scanner(System.in);
+		System.out.println("Please give file name you want to parse:");
+		//File file = new File(s.nextLine());
+
 		BufferedWriter writer;
 		
 		try {
@@ -28,7 +32,7 @@ public class Decode {
 			int pos = 0;
 
 			try {
-				writer = new BufferedWriter(new FileWriter("D:\\tools\\myfavtools\\out.txt"));
+				writer = new BufferedWriter(new FileWriter("D:\\Games\\Favorite\\hcb\\decoded.txt"));
 				
 				int opLength = unsigned[pos] +  (unsigned[++pos]<<8) + (unsigned[++pos]<<16) + (unsigned[++pos]<<24) ;
 				

@@ -41,7 +41,8 @@ public class Encode {
 		ArrayList<Instruct> instructions = new ArrayList<>();
 		ArrayList<Byte> bytes = new ArrayList<>();
 		
-		try(BufferedReader in = new BufferedReader(new FileReader(s.nextLine()))) {
+		//try(BufferedReader in = new BufferedReader(new FileReader(s.nextLine()))) {
+		try(BufferedReader in = new BufferedReader(new FileReader("D:\\Games\\Favorite\\hcb\\recompiled.txt"))) {
 			String str = in.readLine();
 			String[] tokens = str.split("=");
 			
@@ -312,7 +313,7 @@ public class Encode {
 		    }
 		    
 		    //write to hcp
-		    try (FileOutputStream fos = new FileOutputStream("D:\\Games\\Favorite\\hcb\\out.hcb")) {
+		    try (FileOutputStream fos = new FileOutputStream("D:\\Games\\Favorite\\いろとりどりのセカイ\\World.hcb")) {
 		    	   fos.write(bytesToWrite);
 		    	   fos.close();
 		    }
